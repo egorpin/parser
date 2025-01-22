@@ -5,13 +5,13 @@ from sqlalchemy import select, update
 from typing import Iterable
 
 
-async def get_user(tg_id: int) -> User:
+async def get_user(tg_id: int) -> User: # это не работает
     async with async_session() as session:
         user = await session.scalar(select(User).where(User.tg_id == tg_id))
         return user
 
 
-async def get_users() -> Iterable[User]:
+async def get_users() -> Iterable[User]: # это тоже не работает
     async with async_session() as session:
         users = await session.scalars(select(User))
 
