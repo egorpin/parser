@@ -35,13 +35,9 @@ async def register_taglist(callback: CallbackQuery, state: FSMContext):
     tags = data.get('tags', [])
 
     if tag == 'cancel':
-        user = await rq.get_user(callback.from_user.id)
-        user.interval_hours = notification_interval[data['interval'].lower()]
-        user.tags = tags
-
-        await rq.update_user(user)
+        await rq.update_user(callback.from_user.id, interval_hours=notification_interval[data['interval'].lower()], tags=tags)
         await callback.answer()
-        await callback.message.answer(texts.finish_registration.format(data['interval'], user.tags))
+        await callback.message.answer(texts.finish_registration.format(data['interval'], tags))
 
         await state.clear()
         return

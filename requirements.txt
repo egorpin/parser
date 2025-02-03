@@ -4,3 +4,4 @@ beautifulsoup4==4.12.3
 grequests==0.7.0
 python-dotenv==1.0.1
 SQLAlchemy==2.0.37
+asyncpg==0.30.0

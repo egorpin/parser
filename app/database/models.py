@@ -33,7 +33,7 @@ class User(Base):
         if len(tags) > 4:
             raise RuntimeWarning("Tag list can store no more than 4 tags")
         for i in range(min(4, len(tags))):
-            self._tags[0] = getattr(self._tags, f'tag{i}')
+            self._tags[0] = getattr(self._tags, f'tag{i}') # это так не работает
 
 
 class TagList(Base):
