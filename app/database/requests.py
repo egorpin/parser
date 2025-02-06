@@ -2,21 +2,21 @@ from app.database.models import async_session
 from app.database.models import User, TagList
 from sqlalchemy import select, update
 
-from typing import Iterable
+from typing import Iterable, Tuple
+
+async def get_userids() -> Iterable[int]:
+    async with async_session() as session:
+        user_ids = await session.scalars(select(User.tg_id))
+        return list(user_ids)
 
 
-async def get_user(tg_id: int) -> User: # это не работает
+async def get_user_info(tg_id: int) -> Tuple[int, Iterable[str]]:
     async with async_session() as session:
         user = await session.scalar(select(User).where(User.tg_id == tg_id))
-        return user
+        tags = await session.scalar(select(TagList).where(TagList.id == user.id))
 
-"""
-async def get_users() -> Iterable[User]: # это тоже не работает
-    async with async_session() as session:
-        users = await session.scalars(select(User))
+        return user.interval_hours, tags.tags()
 
-        return users
-"""
 
 async def user_exists(tg_id: int) -> bool:
     async with async_session() as session:
@@ -40,8 +40,7 @@ async def update_user(tg_id: int, **new_attrs) -> None:
         tags = await session.scalar(select(TagList).where(TagList.id == user.id))
 
         user.interval_hours = new_attrs['interval_hours']
-        for i in range(min(len(new_attrs['tags']), 4)):
-            setattr(tags, f'tag{i}', new_attrs['tags'][i])
+        tags.update(new_attrs['tags'])
         
         session.add(user)
         session.add(tags)

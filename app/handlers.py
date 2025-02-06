@@ -8,10 +8,9 @@ import app.database.requests as rq
 import app.states as states
 import app.keyboards as kb
 import app.texts as texts
+from app.config import *
 
 router = Router()
-
-notification_interval = {'1 час': 1, '3 часа': 3, '6 часов': 6, '12 часов': 12, 'раз в день': 24, 'никогда': 0}
 
 @router.message(CommandStart())
 async def register(message: Message, state: FSMContext):
@@ -21,12 +20,17 @@ async def register(message: Message, state: FSMContext):
     await state.set_state(states.Register.interval)
     await message.answer(texts.greetings, reply_markup=kb.notification_interval)
 
+@router.message(F.text == "Изменить настройки")
+async def change_settings(message: Message, state: FSMContext):
+    await state.set_state(states.Register.interval)
+    await message.answer(texts.notification_interval, reply_markup=kb.notification_interval)
+
 @router.message(states.Register.interval)
 async def register_interval(message: Message, state: FSMContext):
     await state.update_data(interval=message.text)
 
     await state.set_state(states.Register.tags)
-    await message.answer(texts.taglist, reply_markup=kb.taglist)
+    await message.answer(texts.taglist, reply_markup=kb.make_taglist())
 
 @router.callback_query(states.Register.tags)
 async def register_taglist(callback: CallbackQuery, state: FSMContext):
@@ -34,18 +38,15 @@ async def register_taglist(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     tags = data.get('tags', [])
 
-    if tag == 'cancel':
+    if tag != 'cancel':
+        tags.append(tag)
+
+        await state.update_data(tags=tags)
+        await callback.message.edit_reply_markup(reply_markup=kb.make_taglist(*tags))
+
+    if len(tags) == 4 or tag == 'cancel':
         await rq.update_user(callback.from_user.id, interval_hours=notification_interval[data['interval'].lower()], tags=tags)
         await callback.answer()
-        await callback.message.answer(texts.finish_registration.format(data['interval'], tags))
+        await callback.message.answer(texts.finish_registration.format(data['interval'], tags), reply_markup=kb.default)
 
-        await state.clear()
-        return
-
-    tags.append(tag)
-
-    await state.update_data(tags=tags)
-
-    if len(tags) == 4:
-        await callback.answer()
         await state.clear()
