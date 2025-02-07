@@ -47,6 +47,6 @@ async def register_taglist(callback: CallbackQuery, state: FSMContext):
     if len(tags) == len(config.categories) or tag == 'cancel':
         await rq.update_user(callback.from_user.id, interval_hours=config.notification_interval[data['interval'].lower()], tags=tags)
         await callback.answer()
-        await callback.message.answer(texts.finish_registration.format(data['interval'], tags), reply_markup=kb.default)
+        await callback.message.answer(texts.finish_registration.format(interval=data['interval'], tags='\n'.join(tags)), reply_markup=kb.default)
 
         await state.clear()
