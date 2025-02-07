@@ -1,22 +1,17 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardRemove
 
-from app.config import *
+import app.config as config
 
-default = ReplyKeyboardMarkup(
-    keyboard=[[KeyboardButton(text='Изменить настройки')]], resize_keyboard=True)
+default = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text='Изменить настройки')]], resize_keyboard=True)
 
 notification_interval = ReplyKeyboardRemove(keyboard=[[KeyboardButton(text='1 час')],
-                                                      [KeyboardButton(
-                                                          text='3 часа')],
-                                                      [KeyboardButton(
-                                                          text='6 часов')],
-                                                      [KeyboardButton(
-                                                          text='12 часов')],
-                                                      [KeyboardButton(
-                                                          text='Раз в день')],
+                                                      [KeyboardButton(text='3 часа')],
+                                                      [KeyboardButton(text='6 часов')],
+                                                      [KeyboardButton(text='12 часов')],
+                                                      [KeyboardButton(text='Раз в день')],
                                                       [KeyboardButton(text='Никогда')]], resize_keyboard=True)
 
-initial_buttons = {tag:tag for tag in tags}
+initial_buttons = {tag:tag for tag in config.categories}
 initial_buttons['Достаточно'] = 'cancel'
 
 def make_taglist(*exclude_tags):

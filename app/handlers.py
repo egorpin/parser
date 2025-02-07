@@ -1,14 +1,14 @@
-from aiogram import types, F, Router
+from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
-from aiogram.filters import Command, CommandStart
+from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 
 import app.database.requests as rq
-
 import app.states as states
 import app.keyboards as kb
 import app.texts as texts
-from app.config import *
+
+import app.config as config
 
 router = Router()
 
@@ -44,8 +44,8 @@ async def register_taglist(callback: CallbackQuery, state: FSMContext):
         await state.update_data(tags=tags)
         await callback.message.edit_reply_markup(reply_markup=kb.make_taglist(*tags))
 
-    if len(tags) == 4 or tag == 'cancel':
-        await rq.update_user(callback.from_user.id, interval_hours=notification_interval[data['interval'].lower()], tags=tags)
+    if len(tags) == len(config.categories) or tag == 'cancel':
+        await rq.update_user(callback.from_user.id, interval_hours=config.notification_interval[data['interval'].lower()], tags=tags)
         await callback.answer()
         await callback.message.answer(texts.finish_registration.format(data['interval'], tags), reply_markup=kb.default)
 

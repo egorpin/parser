@@ -1,10 +1,10 @@
+import os
+from typing import Iterable
+
+from dotenv import load_dotenv
 from sqlalchemy import BigInteger, ForeignKey, Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, relationship, mapped_column
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
-from typing import Iterable
-
-import os
-from dotenv import load_dotenv
 
 import app.config as config
 
@@ -25,7 +25,6 @@ class User(Base):
     tg_id = mapped_column(BigInteger)
     interval_hours: Mapped[int] = mapped_column(Integer, default=0)
     _tags: Mapped["TagList"] = relationship()
-    
 
 
 class TagList(Base):
@@ -38,14 +37,15 @@ class TagList(Base):
     tag3: Mapped[str] = mapped_column(String(32), nullable=True)
 
     def tags(self) -> Iterable[str]:
-        return [getattr(self, f'tag{i}') for i in range(len(config.tags))]
+        return [getattr(self, f'tag{i}') for i in range(len(config.categories))]
 
     def update(self, tags: Iterable):
-        if len(tags) > len(config.tags):
+        if len(tags) > len(config.categories):
             raise RuntimeWarning("Tag list can store no more than 4 tags")
         for i in range(len(tags)):
             setattr(self, f'tag{i}', tags[i])
-
+        for i in range(len(tags), len(config.categories)):
+            setattr(self, f'tag{i}', None)
 
 
 async def async_main():

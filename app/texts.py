@@ -13,7 +13,6 @@ project_message = """{title}
 
 {description}
 
-Срок: {time}
 Цена: {price}
 Дата публикации: {publish_date}
 
